@@ -1,0 +1,264 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pendataan Buku</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/cufon-yui.js"></script>
+<script type="text/javascript" src="js/arial.js"></script>
+<script type="text/javascript" src="js/cuf_run.js"></script>
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f1f1f1;
+            margin: 0;
+            padding: 20px;
+        }
+    
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            text-size-adjust: 100px;
+        }
+    
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+    
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+    
+        button {
+            background-color: #af4c4c;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+    
+        button:hover {
+            background-color: #45a049;
+        }
+    
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+    
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+    
+        th {
+            background-color: #f2f2f2;
+        }
+    
+        footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        header{
+          text-align: left;
+          width: 5px;
+        }
+    </style>
+</head>
+<body>
+<!-- START PAGE SOURCE -->
+<header>
+<div class="main">
+    <div class="header_resize">
+      <div class="logo">
+        <h1><a href="index.html">Pendataan<span>Buku</span></a>
+      </div>
+    </header>
+          
+            <body>
+              <form>
+                  <label for="judul">Judul :</label><br>
+                  <input type="text" id="judul" name="judul"><br>
+          
+                  <label for="penulis">Penulis :</label><br>
+                  <input type="text" id="penulis" name="penulis"><br>
+          
+                  <label for="penerbit">Penerbit :</label><br>
+                  <input type="text" id="penerbit" name="penerbit"><br>
+          
+                  <label for="tahun_terbit">Tahun Terbit :</label><br>
+                  <input type="text" id="tahun_terbit" name="tahun_terbit"><br>
+          
+                  <label for="harga">Harga :</label><br>
+                  <input type="text" id="harga" name="harga"><br>
+          
+                  <label for="stok">Stok :</label><br>
+                  <input type="text" id="stok" name="stok"><br>
+          
+          
+                  <button type="button" onclick="saveData()" id="button">Simpan</button>
+              </form>
+          
+              <h1>TABEL DAFTAR BUKU</h1>
+              <table>
+                  <thead>
+                      <tr>
+                          <th>Id</th>
+                          <th>Judul</th>
+                          <th>Penulis</th>
+                          <th>Penerbit</th>
+                          <th>Tahun Terbit</th>
+                          <th>Harga</th>
+                          <th>Stok</th>
+                      </tr>
+                  </thead>
+                  <tbody id="books"></tbody>
+              </table>
+          
+              <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+          
+              <script>
+                  const saveData = async () => {
+                      let judulForm = document.getElementById("judul").value;
+                      let penulisForm = document.getElementById("penulis").value;
+                      let penerbitForm = document.getElementById("penerbit").value;
+                      let tahun_terbitForm = document.getElementById("tahun_terbit").value;
+                      let hargaForm = document.getElementById("harga").value;
+                      let stokForm = document.getElementById("stok").value;
+                      await axios.post('http://103.163.110.11:3031/books', {
+                          judul: judulForm,
+                          penulis: penulisForm,
+                          penerbit: penerbitForm,
+                          tahun_terbit: tahun_terbitForm,
+                          harga: hargaForm,
+                          stok: stokForm
+                      })
+                          .then((response) => {
+                              alert('Data berhasil disimpan!');
+                              getBooks();
+                          })
+                          .catch((error) => {
+                              console.log(error.message);
+                          });
+                  }
+          
+                  const getBooks = async () => {
+                      await axios.get('http://103.163.110.11:3031/books')
+                          .then((response) => {
+                              let bucket = '';
+                              let books = response.data;
+                              books.forEach((book, i) => {
+                                  bucket += `
+                                      <tr>
+                                          <td>${i + 1}</td>
+                                          <td>${book.judul}</td>
+                                          <td>${book.penulis}</td>
+                                          <td>${book.penerbit}</td>
+                                          <td>${book.tahun_terbit}</td>
+                                          <td>${book.harga}</td>
+                                          <td>${book.stok}</td>
+                                          <td>
+                                              <button onclick="editData('${book.id}','${book.judul}','${book.penulis}','${book.penerbit}','${book.tahun_terbit}','${book.harga}','${book.stok}')">Edit</button>
+                                              <button onclick="deleteData(${book.id})">Delete</button>
+                                          </td>
+                                      </tr>
+                                  `;
+                              });
+                              document.getElementById('books').innerHTML = bucket;
+                          })
+                          .catch((error) => {
+                              console.log(error.message);
+                          });
+                  }
+                  getBooks();
+          
+                  const deleteData = async (id) => {
+                      await axios.delete(`http://103.163.110.11:3031/books/${id}`)
+                          .then((response) => {
+                              alert('Data berhasil dihapus');
+                              getBooks();
+                          })
+                          .catch((error) => {
+                              console.log(error.message);
+                          });
+                  }
+          
+                  const editData = (id, judul, penulis, penerbit, tahun_terbit, harga) => {
+                      document.getElementById('judul').value = judul;
+                      document.getElementById('penulis').value = penulis;
+                      document.getElementById('penerbit').value = penerbit;
+                      document.getElementById('tahun_terbit').value = tahun_terbit;
+                      document.getElementById('harga').value = harga;
+                      document.getElementById('stok').value = stok;
+                      document.getElementById('button').innerText = 'Update';
+                      document.getElementById('button').setAttribute('onclick', `updateData(${id})`);
+                  }
+          
+                  const updateData = async (id) => {
+                      let judulForm = document.getElementById("judul").value;
+                      let penulisForm = document.getElementById("penulis").value;
+                      let penerbitForm = document.getElementById("penerbit").value;
+                      let tahun_terbitForm = document.getElementById("tahun_terbit").value;
+                      let hargaForm = document.getElementById("harga").value;
+                      let stokForm = document.getElementById("stok").value;
+                      await axios
+                          .patch(`http://103.163.110.11:3031/books/${id}`, {
+                              judul: judulForm,
+                              penulis: penulisForm,
+                              penerbit: penerbitForm,
+                              tahun_terbit: tahun_terbitForm,
+                              harga: hargaForm,
+                              stok: stokForm
+                          })
+                          .then((response) => {
+                              alert("Data berhasil diubah");
+                              getBooks();
+                              resetForm();
+                          })
+                          .catch((error) => {
+                              console.log(error.message);
+                          });
+                  };
+          
+                  const resetForm = () => {
+                      document.getElementById("judul").value = "";
+                      document.getElementById("penulis").value = "";
+                      document.getElementById("penerbit").value = "";
+                      document.getElementById("tahun_terbit").value = "";
+                      document.getElementById("harga").value = "";
+                      document.getElementById("stok").value = "";
+                      document.getElementById("button").innerText = "Simpan";
+                      document.getElementById("button").setAttribute("onclick", "saveData()");
+                  };
+          
+              </script>
+              <footer>
+                  Pendataan Buku || Dibuat Oleh Fakhri Zaki Muhtarom ||
+              </footer>
+          </body>
+      </div>
+      <div class="clr"></div>
+    </div>
+</div>
+<!-- END PAGE SOURCE -->
+</body>
+</html>
